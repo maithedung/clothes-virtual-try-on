@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, render_template
-from PIL import Image
-import requests
-from io import BytesIO
 import base64
+from io import BytesIO
+
+import requests
+from PIL import Image
+from flask import Flask, request, render_template
 
 app = Flask(__name__)
 
@@ -20,7 +21,7 @@ def submit():
     ## replace the url from the ngrok url provided on the notebook on server.
     url = "http://b89a-34-79-184-67.ngrok.io/api/transform"
     print("sending")
-    response = requests.post(url=url, files={"cloth":cloth.stream, "model":model.stream})
+    response = requests.post(url=url, files={"cloth": cloth.stream, "model": model.stream})
     op = Image.open(BytesIO(response.content))
 
     buffer = BytesIO()
@@ -30,9 +31,9 @@ def submit():
     data = buffer.read()
     data = base64.b64encode(data).decode()
 
-
     return render_template('index.html', op=data)
     # return render_template('index.html', test=True)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

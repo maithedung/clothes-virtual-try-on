@@ -8,11 +8,13 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 
 from networks import U2NET
+
 device = 'cuda'
 
 image_dir = '/content/inputs/test/cloth'
 result_dir = '/content/inputs/test/cloth-mask'
 checkpoint_path = 'cloth_segm_u2net_latest.pth'
+
 
 def load_checkpoint_mgpu(model, checkpoint_path):
     if not os.path.exists(checkpoint_path):
@@ -27,6 +29,7 @@ def load_checkpoint_mgpu(model, checkpoint_path):
     model.load_state_dict(new_state_dict)
     print("----checkpoints loaded from path: {}----".format(checkpoint_path))
     return model
+
 
 class Normalize_image(object):
     """Normalize given tensor into given mean and standard dev
@@ -108,7 +111,7 @@ for image_name in images_list:
     img = img.resize((768, 768), Image.BICUBIC)
     image_tensor = transform_rgb(img)
     image_tensor = torch.unsqueeze(image_tensor, 0)
-    
+
     output_tensor = net(image_tensor.to(device))
     output_tensor = F.log_softmax(output_tensor[0], dim=1)
     output_tensor = torch.max(output_tensor, dim=1, keepdim=True)[1]
@@ -118,7 +121,7 @@ for image_name in images_list:
 
     output_img = Image.fromarray(output_arr.astype('uint8'), mode='L')
     output_img = output_img.resize(img_size, Image.BICUBIC)
-    
+
     output_img.putpalette(palette)
     output_img = output_img.convert('L')
-    output_img.save(os.path.join(result_dir, image_name[:-4]+'.jpg'))
+    output_img.save(os.path.join(result_dir, image_name[:-4] + '.jpg'))
